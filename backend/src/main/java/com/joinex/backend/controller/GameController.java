@@ -1,10 +1,11 @@
 package com.joinex.backend.controller;
 
-import com.joinex.backend.dto.GameResponse;
+import com.joinex.backend.dto.LevelDetail;
+import com.joinex.backend.dto.LevelSummary;
+import com.joinex.backend.dto.ValidationResult;
 import com.joinex.backend.model.Level;
 import com.joinex.backend.repository.LevelRepository;
 import com.joinex.backend.service.GameService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,21 +15,25 @@ import java.util.Map;
 @RequestMapping("/api")
 @CrossOrigin(origins = "*")
 public class GameController {
+    private final GameService gameService;
 
-    @Autowired
-    private LevelRepository levelRepository;
-
-    @Autowired
-    private GameService gameService;
+    public GameController(GameService gameService) {
+        this.gameService = gameService;
+    }
 
     @GetMapping("/levels")
-    public List<Level> getLevels() {
-        return levelRepository.findAll();
+    public List<LevelSummary> getLevels() {
+        return gameService.getLevels();
+    }
+
+    @GetMapping("/levels/{id}")
+    public LevelDetail getLevelById(@PathVariable Long id) {
+        return gameService.getLevelById(Long.valueOf(id));
     }
 
     @PostMapping("/levels/{id}/validate")
-    public GameResponse validate(@PathVariable Long id, @RequestBody Map<String, String> body) {
+    public ValidationResult validate(@PathVariable Long id, @RequestBody Map<String, String> body) {
         String userSql = body.get("sql");
-        return gameService.validateLevel(id, userSql);
+        return gameService.validateSolution(id, userSql);
     }
 }
