@@ -34,13 +34,12 @@ public class GameService {
                 .orElseThrow(() -> new ResourceNotFoundException("Level not found with ID: " + id));
     }
 
-    @Transactional(readOnly = true) // Importante para la consistencia
+    @Transactional(readOnly = true)
     public ValidationResult validateSolution(Long levelId, String userSql) {
         Level level = levelRepository.findById(levelId)
                 .orElseThrow(() -> new ResourceNotFoundException("Level not found"));
 
         try {
-            // Log de la consulta recibida (opcional, por auditoría)
             log.info("Validating SQL for level {}: {}", levelId, userSql);
 
             List<Map<String, Object>> userResults = jdbcTemplate.queryForList(userSql);
@@ -52,9 +51,22 @@ public class GameService {
             return new ValidationResult(isCorrect, message, userResults);
 
         } catch (org.springframework.dao.DataAccessException e) {
-            // Capturamos específicamente errores de acceso a datos
             log.error("SQL Execution error: {}", e.getMessage());
             return new ValidationResult(false, "Syntax Error: " + e.getMostSpecificCause().getMessage(), null);
         }
+    }
+
+    public LevelSummary createLevel(CreateLevel dto) {
+        Level level = new Level();
+        level.setTitle(dto.title());
+        level.setDescription(dto.description());
+        level.setSolutionQuery(dto.solutionQuery());
+
+        Level savedLevel = levelRepository.save(level);
+
+        return new LevelSummary(
+                savedLevel.getId(),
+                savedLevel.getTitle()
+        );
     }
 }
