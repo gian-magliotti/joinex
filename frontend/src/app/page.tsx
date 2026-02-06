@@ -1,15 +1,23 @@
-// @ts-nocheck
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
-import Link from "next/link"; 
+import LevelCard from "./components/LevelCard";
+import CarouselButton from "./components/CarouselButton";
+
+type Level = {
+  id: number;
+  title: string;
+  description: string;
+  difficulty?: string;
+};
 
 export default function Home() {
-  const [levels, setLevels] = useState([]);
+  const [levels, setLevels] = useState<Level[]>([]);
   const [error, setError] = useState("");
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    axios.get("http://localhost:8080/api/levels")
+    axios.get("http://192.168.1.15:8080/api/levels")
       .then((response) => {
         setLevels(response.data);
       })
@@ -18,6 +26,17 @@ export default function Home() {
         setError("Error: No puedo conectar con el servidor de Joinex.");
       });
   }, []);
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollContainerRef.current) {
+      const { clientWidth } = scrollContainerRef.current;
+      const scrollAmount = clientWidth; 
+      scrollContainerRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
 
   return (
     <main className="min-h-[calc(100vh-70px)] bg-gray-900 text-white flex flex-col items-center py-20 px-4">
@@ -37,34 +56,31 @@ export default function Home() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl">
-        {levels.map((level) => (
-          <div key={level.id} className="group relative bg-gray-800 rounded-2xl border border-gray-700 hover:border-green-500 transition-all duration-300 hover:shadow-[0_0_20px_rgba(74,222,128,0.2)] flex flex-col overflow-hidden">
-            <div className="h-2 w-full bg-gradient-to-r from-green-500 to-blue-500"></div>
+      {/* --- ZONA DEL CARRUSEL --- */}
+      {/* La clase 'group' es vital aquí para que los botones sepan cuándo aparecer */}
+      <div className="relative w-full max-w-6xl group px-4">
+        
+        {/* Usamos el componente nuevo (Izquierda) */}
+        <CarouselButton direction="left" onClick={() => scroll('left')} />
 
-            <div className="p-8 flex-1 flex flex-col">
-              <div className="flex justify-between items-start mb-4">
-                <span className="bg-gray-700 text-xs font-bold px-2 py-1 rounded text-gray-300 uppercase tracking-wider">
-                  Caso #{level.id}
-                </span>
-              </div>
-              
-              <h2 className="text-2xl font-bold mb-3 text-white group-hover:text-green-400 transition-colors">
-                {level.title}
-              </h2>
-              
-              <p className="text-gray-400 text-sm leading-relaxed mb-6 flex-1">
-                {level.description}
-              </p>
-              <Link href={`/levels/${level.id}`} className="block">
-                <button className="w-full bg-gray-700 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 group-hover:shadow-lg">
-                  <span>Resolver Misterio</span>
-                  <span className="group-hover:translate-x-1 transition-transform">→</span>
-                </button>
-              </Link>
+        <div 
+          ref={scrollContainerRef}
+          className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth hide-scrollbar pb-10"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
+          {levels.map((level) => (
+            <div 
+              key={level.id} 
+              className="flex-shrink-0 w-full md:w-1/2 lg:w-1/3 p-4 snap-center"
+            >
+              <LevelCard level={level} />
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
+
+        {/* Usamos el componente nuevo (Derecha) */}
+        <CarouselButton direction="right" onClick={() => scroll('right')} />
+
       </div>
     </main>
   );
