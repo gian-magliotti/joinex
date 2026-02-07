@@ -10,31 +10,31 @@ interface LevelCardProps {
   level: Level;
 }
 
-// 3. Aplicamos el tipo en la función
 export default function LevelCard({ level }: LevelCardProps) {
   return (
-    <div className="group relative bg-gray-800 rounded-2xl border border-gray-700 hover:border-green-500 transition-all duration-300 hover:shadow-[0_0_20px_rgba(74,222,128,0.2)] flex flex-col overflow-hidden cursor-pointer">
-      <div className="h-2 w-full bg-gradient-to-r from-green-500 to-blue-500"></div>
+    <div className="group relative bg-gray-915/50 rounded-2xl border border-gray-800 hover:border-violet-500 transition-all duration-300 hover:shadow-[0_0_25px_rgba(139,92,246,0.25)] flex flex-col overflow-hidden cursor-pointer h-full backdrop-blur-sm">
+      {/* Barra superior con gradiente Violeta -> Fucsia */}
+      <div className="h-1.5 w-full bg-gradient-to-r from-violet-500 to-fuchsia-500"></div>
 
       <div className="p-8 flex-1 flex flex-col">
-        <div className="flex justify-between items-start mb-4">
-          <span className="bg-gray-700 text-xs font-bold px-2 py-1 rounded text-gray-300 uppercase tracking-wider">
+        <div className="flex justify-between items-start mb-5">
+          <span className="bg-gray-800 border border-gray-700 text-[10px] font-bold px-2 py-1 rounded text-violet-300 uppercase tracking-widest shadow-sm">
             Case #{level.id}
           </span>
         </div>
 
-        <h2 className="text-2xl font-bold mb-3 text-white group-hover:text-green-400 transition-colors">
+        <h2 className="text-2xl font-bold mb-3 text-white group-hover:text-violet-400 transition-colors duration-300">
           {level.title}
         </h2>
 
-        <p className="text-gray-400 text-sm leading-relaxed mb-6 flex-1">
+        <p className="text-gray-400 text-sm leading-relaxed mb-8 flex-1">
           {level.description}
         </p>
 
-        <Link href={`/levels/${level.id}`} className="block">
-          <button className="w-full bg-gray-700 hover:bg-cyan-600 text-white font-bold py-3 px-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 group-hover:shadow-lg cursor-pointer">
+        <Link href={`/levels/${level.id}`} className="block mt-auto">
+          <button className="w-full bg-gray-800 border border-gray-700 hover:border-violet-500 hover:bg-violet-600/20 text-white font-semibold py-3.5 px-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 group-hover:shadow-[0_0_15px_rgba(139,92,246,0.4)] cursor-pointer group-hover:text-violet-100">
             <span>Play now</span>
-            <span className="group-hover:translate-x-1 transition-transform">→</span>
+            <span className="group-hover:translate-x-1 transition-transform text-violet-400 group-hover:text-white">→</span>
           </button>
         </Link>
       </div>
