@@ -2,21 +2,25 @@ package com.joinex.backend.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "levels")
 @Data
 public class Level {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String title;
+
+    @Column(length = 1000)
     private String description;
 
-    @Column(columnDefinition = "TEXT")
-    private String initScript;
+    @Enumerated(EnumType.STRING)
+    private Difficulty difficulty;
 
-    @Column(columnDefinition = "TEXT")
-    private String solutionQuery;
+    @JdbcTypeCode(SqlTypes.JSON)
+    //@Column(columnDefinition = "jsonb")
+    private LevelDefinition content;
 }

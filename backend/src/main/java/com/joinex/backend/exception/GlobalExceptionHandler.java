@@ -1,7 +1,6 @@
 package com.joinex.backend.exception;
 
-import com.joinex.backend.dto.ErrorResponse;
-import com.joinex.backend.exception.ResourceNotFoundException;
+import com.joinex.backend.dto.ErrorResponseDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -13,8 +12,8 @@ import java.time.LocalDateTime;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleResourceNotFound(ResourceNotFoundException ex) {
-        ErrorResponse error = new ErrorResponse(
+    public ResponseEntity<ErrorResponseDto> handleResourceNotFound(ResourceNotFoundException ex) {
+        ErrorResponseDto error = new ErrorResponseDto(
                 HttpStatus.NOT_FOUND.value(),
                 ex.getMessage(),
                 LocalDateTime.now()
@@ -23,8 +22,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGlobalException(Exception ex) {
-        ErrorResponse error = new ErrorResponse(
+    public ResponseEntity<ErrorResponseDto> handleGlobalException(Exception ex) {
+        ErrorResponseDto error = new ErrorResponseDto(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "An unexpected error occurred",
                 LocalDateTime.now()
