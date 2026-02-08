@@ -12,10 +12,8 @@ export default function CarouselButton({ direction, onClick }: CarouselButtonPro
       className={`
         hidden md:flex absolute top-1/2 -translate-y-1/2 z-20 
         w-12 h-12 items-center justify-center rounded-full
-        /* Fondo más oscuro y borde sutil */
         bg-black/60 backdrop-blur-md border border-gray-800 
         text-gray-400 
-        /* Hover: Violeta Neón Brillante */
         hover:text-white hover:border-violet-500 hover:bg-violet-600/20 
         hover:shadow-[0_0_20px_rgba(139,92,246,0.5)]
         transition-all duration-300 transform hover:scale-110 

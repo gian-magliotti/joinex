@@ -13,7 +13,7 @@ interface LevelCardProps {
 export default function LevelCard({ level }: LevelCardProps) {
   return (
     <div className="group relative bg-gray-915/50 rounded-2xl border border-gray-800 hover:border-violet-500 transition-all duration-300 hover:shadow-[0_0_25px_rgba(139,92,246,0.25)] flex flex-col overflow-hidden cursor-pointer h-full backdrop-blur-sm">
-      {/* Barra superior con gradiente Violeta -> Fucsia */}
+      
       <div className="h-1.5 w-full bg-gradient-to-r from-violet-500 to-fuchsia-500"></div>
 
       <div className="p-8 flex-1 flex flex-col">
