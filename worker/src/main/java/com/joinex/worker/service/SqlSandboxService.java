@@ -4,6 +4,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.testcontainers.containers.PostgreSQLContainer;
 
@@ -13,13 +14,14 @@ import java.time.Duration;
 import java.util.*;
 
 @Service
+@Slf4j
 public class SqlSandboxService {
 
     private static final PostgreSQLContainer<?> postgresContainer =
             new PostgreSQLContainer<>("postgres:15-alpine")
                     .withDatabaseName("sandbox")
-                    .withUsername("gamer")
-                    .withPassword("password")
+                    .withUsername("sandbox_user")
+                    .withPassword("sandbox_pass")
                     .withReuse(true);
 
     private DataSource dataSource;
@@ -27,7 +29,7 @@ public class SqlSandboxService {
 
     @PostConstruct
     public void startContainer() {
-        System.out.println("Starting PostgreSQL Sandbox...");
+        log.info("Starting PostgreSQL Sandbox...");
         postgresContainer.start();
 
         HikariConfig config = new HikariConfig();
@@ -35,10 +37,10 @@ public class SqlSandboxService {
         config.setUsername(postgresContainer.getUsername());
         config.setPassword(postgresContainer.getPassword());
         config.setMaximumPoolSize(10);
-        config.setConnectionTimeout(Duration.ofSeconds(10).toMillis());
 
         this.dataSource = new HikariDataSource(config);
-        System.out.println("Sandbox ready");
+
+        log.info("Sandbox ready");
     }
 
     @PreDestroy
@@ -50,41 +52,61 @@ public class SqlSandboxService {
                                             String userSql,
                                             String validationSql) {
 
-        String schema = "schema_" + UUID.randomUUID().toString().replace("-", "");
-        List<Map<String,Object>> expectedResults = new ArrayList<>();
-        List<Map<String,Object>> userResults = new ArrayList<>();
-        String error = null;
+        String schema = "job_" + UUID.randomUUID().toString().replace("-", "");
 
-        try (Connection conn = dataSource.getConnection()) {
+        try (Connection conn = dataSource.getConnection();
+             Statement stmt = conn.createStatement()) {
 
-            conn.setAutoCommit(false);
+            stmt.setQueryTimeout(QUERY_TIMEOUT_SECONDS);
+            stmt.execute("CREATE SCHEMA " + schema);
+            stmt.execute("SET search_path TO " + schema);
 
-            try (Statement stmt = conn.createStatement()) {
-                stmt.setQueryTimeout(QUERY_TIMEOUT_SECONDS);
-                stmt.execute("CREATE SCHEMA " + schema);
-                stmt.execute("SET search_path TO " + schema);
-
+            try {
+                conn.setAutoCommit(false);
                 if (setupSql != null) {
                     for (String sql : setupSql) {
                         stmt.execute(sql);
                     }
                 }
-                expectedResults = runQuery(stmt, validationSql);
 
+                List<Map<String,Object>> expectedResults =
+                        runQuery(stmt, validationSql);
+
+                List<Map<String,Object>> userResults;
                 try {
                     userResults = runQuery(stmt, userSql);
                 } catch (Exception e) {
-                    error = e.getMessage();
+                    conn.rollback();
+                    dropSchemaQuietly(schema);
+                    return new ExecutionResult(null, expectedResults, e.getMessage());
                 }
+
                 conn.rollback();
+
+                dropSchemaQuietly(schema);
+
+                return new ExecutionResult(userResults, expectedResults, null);
+
+            } catch (Exception e) {
+                conn.rollback();
+                dropSchemaQuietly(schema);
+                return new ExecutionResult(null, null,
+                        "Sandbox error: " + e.getMessage());
             }
 
         } catch (Exception e) {
             return new ExecutionResult(null, null,
-                    "Sandbox system error: " + e.getMessage());
+                    "Sandbox infra error: " + e.getMessage());
         }
+    }
 
-        return new ExecutionResult(userResults, expectedResults, error);
+    private void dropSchemaQuietly(String schema) {
+        try (Connection c = dataSource.getConnection();
+             Statement s = c.createStatement()) {
+            s.execute("DROP SCHEMA IF EXISTS " + schema + " CASCADE");
+        } catch (Exception e) {
+            log.error("Failed to drop schema {}", schema, e);
+        }
     }
 
     private List<Map<String,Object>> runQuery(Statement stmt, String sql) throws Exception {
