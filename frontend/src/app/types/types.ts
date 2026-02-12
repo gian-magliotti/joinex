@@ -19,8 +19,12 @@ export type LevelDetail = {
   steps: LevelStep[];
 };
 
-export type ValidationResult = {
+export interface ValidationResult {
   correct: boolean;
   message: string;
-  results: any[]; 
-};
+  data: any[]; // The SQL result rows
+}
+
+export interface JobResponse {
+  jobId: string;
+}

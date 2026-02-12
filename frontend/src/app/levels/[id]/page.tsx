@@ -11,7 +11,7 @@ import { useGameLevel } from "@/app/hooks/useGameLevel";
 export default function LevelPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   
-  const { 
+  const {  
     level, loading, currentStepIndex, query, setQuery, 
     handleRunQuery, validating, results, feedback, currentStep 
   } = useGameLevel(id);

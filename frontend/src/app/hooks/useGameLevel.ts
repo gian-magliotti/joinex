@@ -3,56 +3,50 @@ import { useState, useEffect } from "react";
 import confetti from "canvas-confetti";
 import { LevelDetail } from "@/app/types/types";
 import { GameService } from "../services/game.service";
+import { useSqlJob } from "./useSqlJob"; 
 
 export type FeedbackType = { type: 'success' | 'error' | 'info'; msg: string } | null;
 
 export const useGameLevel = (levelId: string) => {
   const [level, setLevel] = useState<LevelDetail | null>(null);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<any[] | null>(null);
   const [feedback, setFeedback] = useState<FeedbackType>(null);
-  const [loading, setLoading] = useState(true);
-  const [validating, setValidating] = useState(false);
+  const [loadingLevel, setLoadingLevel] = useState(true);
 
-  // 1. Cargar Nivel
+  const { executeJob, isValidating, error: jobError } = useSqlJob();
+
   useEffect(() => {
     GameService.getLevelById(levelId)
       .then((data) => {
         setLevel(data);
-        setLoading(false);
+        setLoadingLevel(false);
       })
-      .catch((err) => {
-        console.error(err);
-        setFeedback({ type: 'error', msg: "Error conectando con el servidor." });
-        setLoading(false);
-      });
+      .catch(() => setLoadingLevel(false));
   }, [levelId]);
 
-  // 2. Ejecutar Query
   const handleRunQuery = async () => {
     if (!level) return;
-    
-    setValidating(true);
     setFeedback(null);
     setResults(null);
-
+    
     const currentStep = level.steps[currentStepIndex];
 
     try {
-      const data = await GameService.validateStep(level.id, currentStep.id, query);
-      setResults(data.results);
+      const result = await executeJob(level.id, currentStep.id, query);
+      
+      setResults(result.data);
 
-      if (data.correct) {
+      if (result.correct) {
         handleSuccess();
       } else {
-        setFeedback({ type: 'error', msg: data.message });
+        setFeedback({ type: 'error', msg: result.message });
       }
-    } catch (err: any) {
-      const errorMsg = err.response?.data?.message || "Error de ejecución";
-      setFeedback({ type: 'error', msg: errorMsg });
-    } finally {
-      setValidating(false);
+
+    } catch (e: any) {
+      setFeedback({ type: 'error', msg: e.message || "Execution error" });
     }
   };
 
@@ -60,12 +54,12 @@ export const useGameLevel = (levelId: string) => {
     if (!level) return;
     const isLastStep = currentStepIndex === level.steps.length - 1;
     
-    setFeedback({ type: 'success', msg: isLastStep ? "¡NIVEL COMPLETADO!" : "¡Correcto! Pasando al siguiente..." });
+    setFeedback({ type: 'success', msg: isLastStep ? "LEVEL COMPLETE!" : "Correct! Next..." });
     confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
 
     setTimeout(() => {
       if (!isLastStep) {
-        setCurrentStepIndex((prev) => prev + 1);
+        setCurrentStepIndex(prev => prev + 1);
         setFeedback(null);
         setQuery("");
       } else {
@@ -81,8 +75,8 @@ export const useGameLevel = (levelId: string) => {
     setQuery,
     results,
     feedback,
-    loading,
-    validating,
+    loading: loadingLevel,
+    validating: isValidating,
     handleRunQuery,
     currentStep: level?.steps[currentStepIndex]
   };
