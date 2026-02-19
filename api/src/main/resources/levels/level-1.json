@@ -4,6 +4,26 @@
   "description": "Se han filtrado datos confidenciales. Creemos que alguien del departamento de Ventas está accediendo al sistema fuera de horario. Encuentra al culpable.",
   "difficulty": "MEDIUM",
   "content": {
+    "schemas": [
+      {
+        "name": "empleados",
+        "columns": [
+          { "name": "id", "type": "INT", "pk": true, "fk": false },
+          { "name": "nombre", "type": "VARCHAR", "pk": false, "fk": false },
+          { "name": "departamento", "type": "VARCHAR", "pk": false, "fk": false },
+          { "name": "salario", "type": "INT", "pk": false, "fk": false }
+        ]
+      },
+      {
+        "name": "logs_acceso",
+        "columns": [
+          { "name": "id", "type": "INT", "pk": true, "fk": false },
+          { "name": "empleado_id", "type": "INT", "pk": false, "fk": true },
+          { "name": "hora_acceso", "type": "TIME", "pk": false, "fk": false },
+          { "name": "fecha", "type": "DATE", "pk": false, "fk": false }
+        ]
+      }
+    ],
     "setupSql": [
       "CREATE TABLE empleados (id INT, nombre VARCHAR(50), departamento VARCHAR(50), salario INT);",
       "CREATE TABLE logs_acceso (id INT, empleado_id INT, hora_acceso TIME, fecha DATE);",
@@ -20,25 +40,25 @@
       {
         "id": 2,
         "instruction": "Ahora filtremos. Solo nos interesan los empleados del departamento de 'Ventas'.",
-        "hint": "Agrega WHERE departamento = 'Ventas'",
+        "hint": "Usa WHERE...",
         "validationQuery": "SELECT * FROM empleados WHERE departamento = 'Ventas'"
       },
       {
         "id": 3,
         "instruction": "Bien. Ahora necesitamos ver sus registros de entrada. Haz un JOIN entre 'empleados' y 'logs_acceso'.",
         "hint": "SELECT * FROM empleados e JOIN logs_acceso l ON e.id = l.empleado_id",
-        "validationQuery": "SELECT * FROM empleados e JOIN logs_acceso l ON e.id = l.empleado_id"
+        "validationQuery": "Tené en cuenta el uso de joins..."
       },
       {
         "id": 4,
         "instruction": "El robo ocurrió de noche. Filtra los accesos que ocurrieron después de las 22:00:00.",
-        "hint": "Agrega AND hora_acceso > '22:00:00'",
+        "hint": "Agrega una condiciń en el WHERE...",
         "validationQuery": "SELECT * FROM empleados e JOIN logs_acceso l ON e.id = l.empleado_id WHERE l.hora_acceso > '22:00:00'"
       },
       {
         "id": 5,
         "instruction": "Ya casi lo tienes. Solo queremos ver el nombre del empleado sospechoso, no toda la info.",
-        "hint": "Cambia el SELECT * por SELECT e.nombre",
+        "hint": "Cambia el SELECT * ...",
         "validationQuery": "SELECT e.nombre FROM empleados e JOIN logs_acceso l ON e.id = l.empleado_id WHERE l.hora_acceso > '22:00:00'"
       },
       {

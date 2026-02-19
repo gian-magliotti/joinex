@@ -2,6 +2,7 @@ package com.joinex.api.controller;
 
 import com.joinex.api.dto.LevelDetailDto;
 import com.joinex.api.dto.LevelSummaryDto;
+import com.joinex.api.dto.SchemaDto;
 import com.joinex.api.dto.ValidationResultDto;
 import com.joinex.api.service.GameService;
 import lombok.RequiredArgsConstructor;

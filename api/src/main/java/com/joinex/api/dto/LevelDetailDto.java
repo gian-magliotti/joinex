@@ -7,5 +7,6 @@ public record LevelDetailDto(
         String title,
         String description,
         String difficulty,
-        List<LevelStepDto> steps
+        List<LevelStepDto> steps,
+        List<SchemaDto> schemas
 ) {}

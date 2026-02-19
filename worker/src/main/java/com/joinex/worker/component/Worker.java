@@ -20,7 +20,7 @@ public class Worker {
 
     private final StringRedisTemplate redisTemplate;
     private final SqlSandboxService sandboxService;
-    private final SqlResultComparator resultComparator; // 🆕 NUEVO
+    private final SqlResultComparator resultComparator;
     private final ObjectMapper objectMapper;
 
     private static final String QUEUE_NAME = "sql_jobs_queue";

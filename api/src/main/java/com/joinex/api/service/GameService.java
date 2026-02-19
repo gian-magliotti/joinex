@@ -46,15 +46,23 @@ public class GameService {
 
         LevelDefinition content = level.getContent();
         List<LevelStepDto> stepsDto = List.of();
+        List<SchemaDto> schemasDto = List.of();
 
-        if (content != null && content.steps() != null) {
-            stepsDto = content.steps().stream()
-                    .map(step -> new LevelStepDto(
-                            step.id(),
-                            step.instruction(),
-                            step.hint()
-                    ))
-                    .toList();
+        if (content != null) {
+            if (content.steps() != null) {
+                stepsDto = content.steps().stream()
+                        .map(step -> new LevelStepDto(
+                                step.id(),
+                                step.instruction(),
+                                step.hint()
+                        ))
+                        .toList();
+            }
+
+            if (content.schemas() != null) {
+                schemasDto = content.schemas();
+            }
+            System.out.println(schemasDto);
         }
 
         return new LevelDetailDto(
@@ -62,7 +70,8 @@ public class GameService {
                 level.getTitle(),
                 level.getDescription(),
                 level.getDifficulty().name(),
-                stepsDto
+                stepsDto,
+                schemasDto
         );
     }
 
