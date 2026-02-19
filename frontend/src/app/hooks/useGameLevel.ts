@@ -7,6 +7,8 @@ import { useSqlJob } from "./useSqlJob";
 
 export type FeedbackType = { type: 'success' | 'error' | 'info'; msg: string } | null;
 
+
+//Reminder that i must improve this hook it ahs too many responsibilities now
 export const useGameLevel = (levelId: string) => {
   const [level, setLevel] = useState<LevelDetail | null>(null);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
@@ -78,6 +80,7 @@ export const useGameLevel = (levelId: string) => {
     loading: loadingLevel,
     validating: isValidating,
     handleRunQuery,
-    currentStep: level?.steps[currentStepIndex]
+    currentStep: level?.steps[currentStepIndex],
+    schemas: level?.schemas || []
   };
 };

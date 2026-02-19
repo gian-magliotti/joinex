@@ -27,7 +27,7 @@ export const useSqlJob = () => {
     }
   };
 
-  // Internal helper for the loop
+  /* Internal helper for the loop */
   const poll = async (jobId: string): Promise<ValidationResult> => {
     const POLL_INTERVAL = 1000;
     const MAX_RETRIES = 20;

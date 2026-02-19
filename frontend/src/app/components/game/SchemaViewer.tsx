@@ -1,25 +1,14 @@
-const MOCK_TABLES = [
-  {
-    name: "users",
-    columns: [
-      { name: "id", type: "INT", pk: true },
-      { name: "username", type: "VARCHAR" },
-      { name: "email", type: "VARCHAR" },
-      { name: "role", type: "VARCHAR" },
-    ]
-  },
-  {
-    name: "access_logs",
-    columns: [
-      { name: "id", type: "INT", pk: true },
-      { name: "user_id", type: "INT", fk: true },
-      { name: "access_time", type: "TIMESTAMP" },
-      { name: "ip_address", type: "VARCHAR" },
-    ]
-  }
-];
+import { TableSchema } from "@/app/types/types"; 
 
-export const SchemaViewer = () => {
+interface SchemaViewerProps {
+  schemas: TableSchema[];
+}
+
+export const SchemaViewer = ({ schemas }: SchemaViewerProps) => {
+  if (!schemas || schemas.length === 0) {
+    return null;
+  }
+
   return (
     <div className="mb-8">
       <h3 className="text-violet-300 font-bold uppercase tracking-wide text-xs mb-4 flex items-center gap-2 border-b border-gray-800 pb-2">
@@ -30,7 +19,7 @@ export const SchemaViewer = () => {
       </h3>
       
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-        {MOCK_TABLES.map((table) => (
+        {schemas.map((table) => (
           <div key={table.name} className="bg-gray-900/50 border border-gray-800 rounded-lg p-4 hover:bg-gray-900 transition-colors">
             <div className="font-mono text-sm font-bold text-gray-200 mb-3 pb-2 border-b border-gray-800 flex justify-between items-center">
               <span>{table.name}</span>

@@ -41,7 +41,7 @@ export default function LevelPage({ params }: { params: Promise<{ id: string }> 
         
           <CurrentTaskCard step={currentStep} />
 
-          <SchemaViewer />
+          <SchemaViewer schemas={level.schemas}/>
         
         </div>
       </div>
